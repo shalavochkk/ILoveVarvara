@@ -21,7 +21,7 @@
             heroSec.style.display = 'none';
             mainScroller.style.display = 'block';
             activateSlide(0);
-        }, 1500); // Чуть увеличили задержку для плавности
+        }, 1500); 
     });
 
     function activateSlide(index) {
@@ -31,7 +31,11 @@
         sections.forEach(sec => sec.classList.remove('active-slide'));
         
         const targetSection = sections[index];
-        targetSection.classList.add('active-slide');
+        
+        // Даем браузеру отрендерить блок, затем вешаем класс активного слайда (запускает анимации CSS)
+        setTimeout(() => {
+            targetSection.classList.add('active-slide');
+        }, 50);
         
         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -72,8 +76,12 @@
             msgBubble.className = 'bubble-msg';
             msgBubble.textContent = loveReasons[msgIdx];
             
+            // Вставляем новое сообщение В НАЧАЛО
             messagesFeed.insertBefore(msgBubble, messagesFeed.firstChild);
             
+            // Заставляем контейнер посланий всегда быть проскролленным наверх при появлении нового
+            messagesFeed.scrollTop = 0;
+
             setTimeout(() => {
                 msgBubble.classList.add('appear');
             }, 50);
