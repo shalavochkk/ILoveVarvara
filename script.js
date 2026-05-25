@@ -3,11 +3,10 @@
     const heartBlue = document.querySelector('.heart-blue-svg');
     const heartPink = document.querySelector('.heart-pink-svg');
     const mergedHeart = document.querySelector('.merged-heart-svg');
-    const slidesContainer = document.getElementById('slides');
     const slides = document.querySelectorAll('.slide');
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
-
+    
     const loveReasons = [
         { text: "Я люблю тебя за твое бесконечное внимание и заботу", emoji: "💙" },
         { text: "За то, как мило ты разговариваешь, когда сильно устала", emoji: "💗" },
@@ -83,7 +82,7 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-
+                    
                     if (entry.target.id === 'typingSlide' && !typingStarted) {
                         typingStarted = true;
                         startLiveTyping();
@@ -94,7 +93,7 @@
                     }
                 }
             });
-        }, { threshold: 0.25 }); 
+        }, { threshold: 0.2 }); 
         
         slides.forEach(slide => observer.observe(slide));
         slides[0].classList.add('active');
