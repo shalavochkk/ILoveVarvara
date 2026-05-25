@@ -19,27 +19,9 @@
     ];
 
     let typingStarted = false;
-    let textTypingFinished = false;
 
-    function preventDefaultScroll(e) {
-        e.preventDefault();
-    }
-
-    function lockAllScroll() {
-        document.body.classList.add('lock-scroll');
-        slidesContainer.classList.add('disable-scroll');
-        window.addEventListener('touchmove', preventDefaultScroll, { passive: false });
-        window.addEventListener('wheel', preventDefaultScroll, { passive: false });
-    }
-
-    function unlockAllScroll() {
-        document.body.classList.remove('lock-scroll');
-        slidesContainer.classList.remove('disable-scroll');
-        window.removeEventListener('touchmove', preventDefaultScroll);
-        window.removeEventListener('wheel', preventDefaultScroll);
-    }
-
-    lockAllScroll();
+    initSlides();
+    initParticles();
 
     setTimeout(() => hero.classList.add('animate'), 50);
     
@@ -57,9 +39,6 @@
             hero.style.transition = 'opacity 0.5s cubic-bezier(0.15, 1, 0.3, 1)';
             setTimeout(() => {
                 hero.style.display = 'none';
-                initSlides();
-                initParticles();
-                unlockAllScroll();
             }, 500);
         }, 1000);
     }, 1200);
@@ -105,14 +84,9 @@
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
 
-                    if (entry.target.id === 'typingSlide') {
-                        if (!typingStarted) {
-                            typingStarted = true;
-                            lockAllScroll();
-                            startLiveTyping();
-                        } else if (!textTypingFinished) {
-                            lockAllScroll();
-                        }
+                    if (entry.target.id === 'typingSlide' && !typingStarted) {
+                        typingStarted = true;
+                        startLiveTyping();
                     }
                     
                     if (entry.target.classList.contains('final-slide')) {
@@ -120,7 +94,7 @@
                     }
                 }
             });
-        }, { threshold: 0.35 }); 
+        }, { threshold: 0.25 }); 
         
         slides.forEach(slide => observer.observe(slide));
         slides[0].classList.add('active');
@@ -131,11 +105,7 @@
         let itemIndex = 0;
 
         function typeNextItem() {
-            if (itemIndex >= loveReasons.length) {
-                textTypingFinished = true;
-                unlockAllScroll();
-                return;
-            }
+            if (itemIndex >= loveReasons.length) return;
 
             const itemData = loveReasons[itemIndex];
             const li = document.createElement('li');
