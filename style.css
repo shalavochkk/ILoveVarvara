@@ -8,7 +8,6 @@
 }
 
 :root {
-    /* Сделали цвета темнее и глубже для профессионального вида */
     --ios-bg: #02040a; 
     --ios-accent: #60a5fa;
     --ios-accent-dark: #1e3a8a;
@@ -28,7 +27,6 @@ body {
     min-height: -webkit-fill-available;
 }
 
-/* Текстура шума (песка) поверх всего */
 .noise-overlay {
     position: fixed;
     top: 0;
@@ -99,11 +97,15 @@ body {
     width: 140px;
     height: 140px;
     margin-bottom: 32px;
+    filter: none !important;      /* Убрали любое свечение контейнера */
+    box-shadow: none !important;
 }
 
 .liquid-heart-svg {
     width: 100%;
     height: 100%;
+    filter: none !important;      /* Убрали свечение самой SVG (drop-shadow) */
+    box-shadow: none !important;
 }
 
 .liquid-fill {
@@ -127,8 +129,12 @@ body {
     margin-bottom: 40px;
 }
 
-.ios-start-btn {
+.ios-start-btn-wrapper {
     opacity: 0;
+    animation: slideUpFade 1.5s cubic-bezier(0.25, 1, 0.5, 1) 3.5s forwards;
+}
+
+.ios-start-btn {
     padding: 14px 36px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -142,7 +148,13 @@ body {
     backdrop-filter: blur(15px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     transition: all 0.4s ease;
-    animation: slideUpFade 1.5s cubic-bezier(0.25, 1, 0.5, 1) 3.5s forwards;
+    /* Добавили пульсирующую анимацию ожидания нажатия */
+    animation: pulseBtn 2.5s infinite ease-in-out 4.5s; 
+}
+
+@keyframes pulseBtn {
+    0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 10px 40px rgba(96, 165, 250, 0.3); }
 }
 
 .ios-start-btn:active {
@@ -179,7 +191,6 @@ body {
     z-index: 5;
     transform: translateY(50px) scale(0.94);
     opacity: 0;
-    /* Плавная и мягкая анимация */
     transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.5s ease;
     cursor: pointer;
 }
@@ -189,6 +200,21 @@ body {
     opacity: 1;
 }
 
+/* -------------------------------------------
+   АНИМАЦИИ ВНУТРЕННИХ ЭЛЕМЕНТОВ (STAGGERING)
+---------------------------------------------*/
+.stagger-1, .stagger-2, .stagger-3, .stagger-4 {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.section.active-slide .stagger-1 { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+.section.active-slide .stagger-2 { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+.section.active-slide .stagger-3 { opacity: 1; transform: translateY(0); transition-delay: 0.8s; }
+.section.active-slide .stagger-4 { opacity: 1; transform: translateY(0); transition-delay: 1.0s; }
+
+/* Специфичные стили блоков */
 .layout-photo {
     text-align: center;
     padding: 65px 24px;
@@ -255,20 +281,40 @@ body {
     50% { transform: translateY(6px); }
 }
 
+/* -------------------------------------------
+   ИСПРАВЛЕНИЕ ОТОБРАЖЕНИЯ ПОСЛАНИЙ НА ТЕЛЕФОНЕ
+---------------------------------------------*/
 .interactive-card {
     max-width: 440px;
-    min-height: 500px;
+    height: 65vh; /* Адаптивная высота */
+    max-height: 550px; 
+    padding: 30px 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
+    justify-content: flex-start; /* Начинаем вывод элементов сверху */
+    position: relative;
+    overflow: hidden; /* Обрезаем края самой карточки, но внутри скроллим */
 }
 
 .click-instruction {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important; /* Удерживаем по центру независимо от stagger */
     text-align: center;
     color: #64748b;
     transition: opacity 0.6s ease;
     line-height: 1.6;
+    width: 100%;
+    pointer-events: none; /* Клики проходят сквозь инструкцию прямо на карточку */
+}
+
+/* Переопределяем stagger для инструкции, чтобы она всплывала, но оставалась в центре */
+.section.active-slide .click-instruction {
+    transform: translate(-50%, -50%) scale(1) !important;
+}
+.click-instruction {
+    transform: translate(-50%, -40%) scale(0.95) !important;
 }
 
 .tap-icon {
@@ -288,6 +334,18 @@ body {
     flex-direction: column;
     gap: 14px;
     width: 100%;
+    height: 100%;
+    overflow-y: auto; /* ВКЛЮЧАЕМ СКРОЛЛ ДЛЯ ТЕЛЕФОНОВ! */
+    position: relative;
+    z-index: 2;
+    padding-bottom: 20px;
+    
+    /* Прячем системный скроллбар для красоты */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.messages-feed::-webkit-scrollbar {
+    display: none;
 }
 
 .bubble-msg {
@@ -303,6 +361,7 @@ body {
     transform: translateY(-30px);
     transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    flex-shrink: 0; /* Чтобы сообщения не сжимались */
 }
 
 .bubble-msg.appear {
