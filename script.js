@@ -3,24 +3,25 @@
     const heartBlue = document.querySelector('.heart-blue-svg');
     const heartPink = document.querySelector('.heart-pink-svg');
     const mergedHeart = document.querySelector('.merged-heart-svg');
+    const slidesContainer = document.getElementById('slides');
     const slides = document.querySelectorAll('.slide');
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
-    
+
     const loveReasons = [
-        { text: "Я люблю тебя за твое бесконечное внимание и заботу", emoji: "💙" },
-        { text: "За то, как мило ты разговариваешь, когда сильно устала", emoji: "💗" },
-        { text: "За твою невероятную улыбку, которая освещает даже самые хмурые дни", emoji: "✨" },
-        { text: "За то, что ты умеешь понимать меня абсолютно без лишних слов", emoji: "🫂" },
-        { text: "За невероятное тепло, которое ты даришь, несмотря на любые расстояния", emoji: "🌸" },
-        { text: "За то, что ты — моя самая главная поддержка, опора и вдохновение", emoji: "💫" },
-        { text: "И самое главное — за то, что ты вообще у меня есть", emoji: "❤️" }
+        { text: "Я люблю тебя за твое бесконечное внимание и заботу"},
+        { text: "За то, как мило ты разговариваешь, когда сильно устала"},
+        { text: "За твою невероятную улыбку, которая освещает даже самые хмурые дни"},
+        { text: "За то, что ты умеешь понимать меня абсолютно без лишних слов"},
+        { text: "За невероятное тепло, которое ты даришь, несмотря на любые расстояния" },
+        { text: "За то, что ты — моя самая главная поддержка, опора и вдохновение" },
+        { text: "И самое главное — за то, что ты вообще у меня есть" },
+        { text: "Я ТЕБЯ ОЧЕНЬ СИЛЬНО ЛЮБЛЮ" },
+        { text: "НАВСЕГДА - ТВОЙ НИКИТКА" }
     ];
 
     let typingStarted = false;
-
-    initSlides();
-    initParticles();
+    let textTypingFinished = false;
 
     setTimeout(() => hero.classList.add('animate'), 50);
     
@@ -38,6 +39,8 @@
             hero.style.transition = 'opacity 0.5s cubic-bezier(0.15, 1, 0.3, 1)';
             setTimeout(() => {
                 hero.style.display = 'none';
+                initSlides();
+                initParticles();
             }, 500);
         }, 1000);
     }, 1200);
@@ -82,10 +85,12 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    
-                    if (entry.target.id === 'typingSlide' && !typingStarted) {
-                        typingStarted = true;
-                        startLiveTyping();
+
+                    if (entry.target.id === 'typingSlide') {
+                        if (!typingStarted) {
+                            typingStarted = true;
+                            startLiveTyping();
+                        }
                     }
                     
                     if (entry.target.classList.contains('final-slide')) {
@@ -93,7 +98,7 @@
                     }
                 }
             });
-        }, { threshold: 0.2 }); 
+        }, { threshold: 0.35 }); 
         
         slides.forEach(slide => observer.observe(slide));
         slides[0].classList.add('active');
@@ -104,15 +109,13 @@
         let itemIndex = 0;
 
         function typeNextItem() {
-            if (itemIndex >= loveReasons.length) return;
+            if (itemIndex >= loveReasons.length) {
+                textTypingFinished = true;
+                return;
+            }
 
             const itemData = loveReasons[itemIndex];
             const li = document.createElement('li');
-            
-            const emojiSpan = document.createElement('span');
-            emojiSpan.className = 'li-emoji';
-            emojiSpan.innerText = itemData.emoji;
-            li.appendChild(emojiSpan);
 
             const textSpan = document.createElement('span');
             textSpan.className = 'li-text';
