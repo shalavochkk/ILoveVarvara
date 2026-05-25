@@ -1,206 +1,191 @@
 (() => {
-    const hero = document.querySelector('.hero');
-    const heartBlue = document.querySelector('.heart-blue-svg');
-    const heartPink = document.querySelector('.heart-pink-svg');
-    const mergedHeart = document.querySelector('.merged-heart-svg');
-    const slidesContainer = document.getElementById('slides');
-    const slides = document.querySelectorAll('.slide');
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const heroSec = document.getElementById('heroSec');
+    const mainScroller = document.getElementById('mainScroller');
+    const rainCanvas = document.getElementById('rainCanvas');
+    const ctx = rainCanvas.getContext('2d');
+    
+    const slide1 = document.getElementById('slide1');
+    const slide2 = document.getElementById('slide2');
+    const slide3 = document.getElementById('slide3');
+    const slide4 = document.getElementById('slide4');
 
+    const sections = [slide1, slide2, slide3, slide4];
+    let currentSlideIdx = 0;
+
+    startBtn.addEventListener('click', () => {
+        heroSec.style.opacity = '0';
+        heroSec.style.transform = 'translateY(-100vh)';
+        
+        setTimeout(() => {
+            heroSec.style.display = 'none';
+            mainScroller.style.display = 'block';
+            activateSlide(0);
+        }, 1500); // Чуть увеличили задержку для плавности
+    });
+
+    function activateSlide(index) {
+        if(index >= sections.length) return;
+        currentSlideIdx = index;
+        
+        sections.forEach(sec => sec.classList.remove('active-slide'));
+        
+        const targetSection = sections[index];
+        targetSection.classList.add('active-slide');
+        
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        if (index === 1) {
+            startRainEffect();
+            startHeartsDropping();
+        } else if (index === 3) {
+            stopHeartsDropping();
+            triggerFinalFountain();
+        } else {
+            stopHeartsDropping();
+        }
+    }
+
+    slide1.addEventListener('click', () => activateSlide(1));
+    slide2.addEventListener('click', () => activateSlide(2));
+
+    const clickInstruction = document.getElementById('clickInstruction');
+    const messagesFeed = document.getElementById('messagesFeed');
+    
     const loveReasons = [
-        { text: "Я люблю тебя за твое бесконечное внимание и заботу"},
-        { text: "За то, как мило ты разговариваешь, когда сильно устала"},
-        { text: "За твою невероятную улыбку, которая освещает даже самые хмурые дни"},
-        { text: "За то, что ты умеешь понимать меня абсолютно без лишних слов"},
-        { text: "За невероятное тепло, которое ты даришь, несмотря на любые расстояния" },
-        { text: "За то, что ты — моя самая главная поддержка, опора и вдохновение" },
-        { text: "И самое главное — за то, что ты вообще у меня есть" },
-        { text: "Я ТЕБЯ ОЧЕНЬ СИЛЬНО ЛЮБЛЮ" },
-        { text: "НАВСЕГДА - ТВОЙ НИКИТКА" }
+        "Я люблю тебя за твое бесконечное внимание и заботу 💙",
+        "За то, как мило ты разговариваешь, когда сильно устала ✨",
+        "За твою невероятную улыбку, которая освещает любые хмурые дни ☀️",
+        "За то, что ты умеешь понимать меня абсолютно без лишних слов 🫂",
+        "За невероятное тепло, которое ты даришь, несмотря на любые расстояния 🌍",
+        "За то, что ты — моя самая главная поддержка, опора и вдохновение 💎",
+        "И самое главное — за то, что ты вообще у меня есть 🥰"
     ];
+    let msgIdx = 0;
 
-    let typingStarted = false;
-    let textTypingFinished = false;
-
-    setTimeout(() => hero.classList.add('animate'), 50);
-    
-    setTimeout(() => {
-        heartBlue.classList.add('crash');
-        heartPink.classList.add('crash');
-        
-        setTimeout(() => {
-            createPremiumExplosion();
-            mergedHeart.classList.add('show');
-        }, 200); 
-        
-        setTimeout(() => {
-            hero.style.opacity = '0';
-            hero.style.transition = 'opacity 0.5s cubic-bezier(0.15, 1, 0.3, 1)';
-            setTimeout(() => {
-                hero.style.display = 'none';
-                initSlides();
-                initParticles();
-            }, 500);
-        }, 1000);
-    }, 1200);
-    
-    function createPremiumExplosion() {
-        for(let i = 0; i < 45; i++) {
-            const particle = document.createElement('div');
-            const colors = ['#ff2d55', '#ff3b30', '#ffffff'];
-            particle.style.position = 'fixed';
-            particle.style.left = '50%';
-            particle.style.top = '40%';
-            const size = Math.random() * 3 + 2; 
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-            particle.style.borderRadius = '50%';
-            particle.style.pointerEvents = 'none';
-            particle.style.zIndex = '9999';
-            document.body.appendChild(particle);
-            
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 5 + 3;
-            let vx = Math.cos(angle) * velocity;
-            let vy = Math.sin(angle) * velocity - 2;
-            let x = window.innerWidth / 2;
-            let y = window.innerHeight * 0.4;
-            let opacity = 1;
-            
-            function animate() {
-                x += vx; y += vy; vy += 0.16; opacity -= 0.025;
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                particle.style.opacity = opacity;
-                if(opacity > 0) { requestAnimationFrame(animate); } else { particle.remove(); }
-            }
-            requestAnimationFrame(animate);
+    slide3.addEventListener('click', () => {
+        if (msgIdx === 0) {
+            clickInstruction.style.opacity = '0';
+            setTimeout(() => clickInstruction.style.display = 'none', 600);
         }
-    }
-    
-    function initSlides() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
 
-                    if (entry.target.id === 'typingSlide') {
-                        if (!typingStarted) {
-                            typingStarted = true;
-                            startLiveTyping();
-                        }
-                    }
-                    
-                    if (entry.target.classList.contains('final-slide')) {
-                        createFinalHeartsUpward();
-                    }
+        if (msgIdx < loveReasons.length) {
+            const msgBubble = document.createElement('div');
+            msgBubble.className = 'bubble-msg';
+            msgBubble.textContent = loveReasons[msgIdx];
+            
+            messagesFeed.insertBefore(msgBubble, messagesFeed.firstChild);
+            
+            setTimeout(() => {
+                msgBubble.classList.add('appear');
+            }, 50);
+            
+            msgIdx++;
+        } else {
+            activateSlide(3);
+        }
+    });
+
+    let rainDrops = [];
+    let animationFrameId = null;
+
+    function resizeRainCanvas() {
+        rainCanvas.width = window.innerWidth;
+        rainCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeRainCanvas);
+    resizeRainCanvas();
+
+    function startRainEffect() {
+        rainCanvas.style.opacity = '0.2'; 
+        
+        if (rainDrops.length === 0) {
+            for (let i = 0; i < 50; i++) {
+                rainDrops.push({
+                    x: Math.random() * rainCanvas.width,
+                    y: Math.random() * rainCanvas.height,
+                    speed: Math.random() * 1.5 + 1.0,
+                    len: Math.random() * 15 + 10,
+                    opacity: Math.random() * 0.1 + 0.05
+                });
+            }
+        }
+
+        function renderRain() {
+            ctx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+            rainDrops.forEach(d => {
+                ctx.beginPath();
+                ctx.moveTo(d.x, d.y);
+                ctx.lineTo(d.x, d.y + d.len);
+                ctx.strokeStyle = `rgba(147, 197, 253, ${d.opacity})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                d.y += d.speed;
+                if (d.y > rainCanvas.height) {
+                    d.y = -d.len;
+                    d.x = Math.random() * rainCanvas.width;
                 }
             });
-        }, { threshold: 0.35 }); 
+            animationFrameId = requestAnimationFrame(renderRain);
+        }
+        renderRain();
+    }
+
+    let dropInterval = null;
+    const heartPalettes = ['💙', '🩵', '✨', '💎'];
+
+    function spawnSingleHeart() {
+        const heart = document.createElement('div');
+        heart.className = 'ios-heart-drop';
+        heart.textContent = heartPalettes[Math.floor(Math.random() * heartPalettes.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
         
-        slides.forEach(slide => observer.observe(slide));
-        slides[0].classList.add('active');
+        const scale = Math.random() * 0.5 + 0.5; 
+        heart.style.transform = `scale(${scale})`;
+        heart.style.opacity = Math.random() * 0.4 + 0.1;
+        
+        const duration = Math.random() * 4 + 6; 
+        heart.style.animationDuration = duration + 's';
+        
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), duration * 1000);
     }
 
-    function startLiveTyping() {
-        const listContainer = document.getElementById('liveList');
-        let itemIndex = 0;
+    function startHeartsDropping() {
+        if(!dropInterval) dropInterval = setInterval(spawnSingleHeart, 1200);
+    }
 
-        function typeNextItem() {
-            if (itemIndex >= loveReasons.length) {
-                textTypingFinished = true;
-                return;
-            }
+    function stopHeartsDropping() {
+        if(dropInterval) {
+            clearInterval(dropInterval);
+            dropInterval = null;
+        }
+    }
 
-            const itemData = loveReasons[itemIndex];
-            const li = document.createElement('li');
-
-            const textSpan = document.createElement('span');
-            textSpan.className = 'li-text';
-            li.appendChild(textSpan);
-            
-            listContainer.appendChild(li);
-            
+    function triggerFinalFountain() {
+        for (let i = 0; i < 40; i++) {
             setTimeout(() => {
-                li.classList.add('show');
-                li.classList.add('typing');
-            }, 20);
+                const el = document.createElement('div');
+                el.textContent = heartPalettes[Math.floor(Math.random() * heartPalettes.length)];
+                el.style.position = 'fixed';
+                el.style.left = (Math.random() * 90 + 5) + 'vw';
+                el.style.bottom = '-50px';
+                el.style.fontSize = (Math.random() * 18 + 14) + 'px';
+                el.style.pointerEvents = 'none';
+                el.style.zIndex = '99';
+                el.style.opacity = '0.7';
+                el.style.transition = 'all 4s cubic-bezier(0.1, 0.8, 0.2, 1)';
+                document.body.appendChild(el);
 
-            let charIndex = 0;
-            const fullText = itemData.text;
-
-            function typeChar() {
-                if (charIndex < fullText.length) {
-                    textSpan.textContent += fullText.charAt(charIndex);
-                    charIndex++;
-                    setTimeout(typeChar, 18); 
-                } else {
-                    li.classList.remove('typing');
-                    itemIndex++;
-                    setTimeout(typeNextItem, 250); 
-                }
-            }
-            
-            setTimeout(typeChar, 150);
-        }
-
-        typeNextItem();
-    }
-    
-    function initParticles() {
-        let particles = [];
-        const particleCount = 40;
-        for(let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
-                radius: Math.random() * 0.9 + 0.4,
-                vx: (Math.random() - 0.5) * 0.1,
-                vy: (Math.random() - 0.5) * 0.1,
-                color: `rgba(255, 255, 255, ${Math.random() * 0.08 + 0.04})`
-            });
-        }
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        function animate() {
-            if(!canvas.parentElement) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x < 0) p.x = canvas.width; if(p.x > canvas.width) p.x = 0;
-                if(p.y < 0) p.y = canvas.height; if(p.y > canvas.height) p.y = 0;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.color; ctx.fill();
-            });
-            requestAnimationFrame(animate);
-        }
-        window.addEventListener('resize', resize);
-        resize(); animate();
-    }
-    
-    function createFinalHeartsUpward() {
-        for(let i = 0; i < 30; i++) {
-            setTimeout(() => {
-                const heart = document.createElement('div');
-                const icons = ['❤️', '💖', '💗', '💕'];
-                heart.innerHTML = icons[Math.floor(Math.random() * icons.length)];
-                heart.style.position = 'fixed';
-                heart.style.left = Math.random() * window.innerWidth + 'px';
-                heart.style.bottom = '-40px';
-                heart.style.fontSize = Math.random() * 12 + 14 + 'px';
-                heart.style.pointerEvents = 'none';
-                heart.style.zIndex = '9999';
-                heart.style.transition = 'all 4s cubic-bezier(0.1, 0.8, 0.2, 1)';
-                heart.style.opacity = '0.65';
-                document.body.appendChild(heart);
-                
                 setTimeout(() => {
-                    heart.style.transform = `translateY(-${window.innerHeight + 80}px) rotate(${(Math.random() - 0.5) * 30}deg)`;
-                    heart.style.opacity = '0';
-                }, 20);
-                setTimeout(() => heart.remove(), 4000);
-            }, i * 140);
+                    const drift = (Math.random() - 0.5) * 200;
+                    el.style.transform = `translate(${drift}px, -${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`;
+                    el.style.opacity = '0';
+                }, 50);
+
+                setTimeout(() => el.remove(), 4000);
+            }, i * 120);
         }
     }
 })();
