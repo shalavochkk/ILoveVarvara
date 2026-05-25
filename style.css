@@ -9,11 +9,11 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-body.lock-scroll {
-    overflow: hidden !important;
-    position: fixed;
-    width: 100%;
-    height: 100%;
+html {
+    scroll-snap-type: y mandatory;
+}
+.slide {
+    scroll-snap-align: start;
 }
 
 body {
