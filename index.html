@@ -6,84 +6,97 @@
     <title>ВАРЮША 💙</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="noise-overlay"></div>
 
-    <div class="ios-blur-bg"></div>
-    <canvas id="rainCanvas"></canvas>
+<canvas id="starCanvas"></canvas>
+<div class="aurora" id="aurora"></div>
+<canvas id="rainCanvas"></canvas>
 
-    <section class="section hero-section" id="heroSec">
-        <div class="hero-content">
-            <div class="liquid-heart-container">
-                <svg viewBox="0 0 100 100" class="liquid-heart-svg">
-                    <defs>
-                        <clipPath id="heartClip">
-                            <path d="M50,88.5 C50,88.5 12,55.2 12,31.5 C12,18 22.5,8 35,8 C43.5,8 50,14.5 50,14.5 C50,14.5 56.5,8 65,8 C77.5,8 88,18 88,31.5 C88,55.2 50,88.5 50,88.5Z" />
-                        </clipPath>
-                        <linearGradient id="liquidGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                            <stop offset="0%" stop-color="#1e3a8a" />
-                            <stop offset="60%" stop-color="#3b82f6" />
-                            <stop offset="100%" stop-color="#93c5fd" />
-                        </linearGradient>
-                    </defs>
-                    <path class="heart-outline" d="M50,88.5 C50,88.5 12,55.2 12,31.5 C12,18 22.5,8 35,8 C43.5,8 50,14.5 50,14.5 C50,14.5 56.5,8 65,8 C77.5,8 88,18 88,31.5 C88,55.2 50,88.5 50,88.5Z" fill="none" stroke="rgba(147, 197, 253, 0.4)" stroke-width="2.5"/>
-                    <rect class="liquid-fill" x="0" y="100" width="100" height="100" fill="url(#liquidGrad)" clip-path="url(#heartClip)"/>
-                </svg>
-            </div>
-            <h2 class="hero-subtitle">моя любовь к тебе все сильнее и сильнее</h2>
-            <div class="ios-start-btn-wrapper">
-                <div class="ios-start-btn" id="startBtn">Жмякни</div>
-            </div>
+<section class="hero-section" id="heroSec">
+    <div class="hero-content">
+        <div class="heart-wrap">
+            <div class="heart-pulse-ring"></div>
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="heartGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <linearGradient id="liquidGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%"   stop-color="#0d1f4a"/>
+                        <stop offset="50%"  stop-color="#2563eb"/>
+                        <stop offset="100%" stop-color="#93c5fd"/>
+                    </linearGradient>
+                    <clipPath id="heartClip">
+                        <path d="M50,85 C50,85 13,54 13,31 C13,18.5 23,9 35,9 C43.5,9 50,15.5 50,15.5 C50,15.5 56.5,9 65,9 C77,9 87,18.5 87,31 C87,54 50,85 50,85Z"/>
+                    </clipPath>
+                </defs>
+                <rect class="liquid-fill-rect" x="0" y="100" width="100" height="100"
+                      fill="url(#liquidGrad)" clip-path="url(#heartClip)"/>
+                <path class="heart-outline-path"
+                      d="M50,85 C50,85 13,54 13,31 C13,18.5 23,9 35,9 C43.5,9 50,15.5 50,15.5 C50,15.5 56.5,9 65,9 C77,9 87,18.5 87,31 C87,54 50,85 50,85Z"/>
+                <path class="heart-glow-path"
+                      d="M50,85 C50,85 13,54 13,31 C13,18.5 23,9 35,9 C43.5,9 50,15.5 50,15.5 C50,15.5 56.5,9 65,9 C77,9 87,18.5 87,31 C87,54 50,85 50,85Z"
+                      filter="url(#heartGlow)"/>
+            </svg>
         </div>
-    </section>
+        <div class="hero-label">для тебя</div>
+        <h2 class="hero-title">моя любовь к тебе<br>всё сильнее и сильнее</h2>
+        <div class="btn-wrap">
+            <button class="start-btn" id="startBtn">
+                <span class="btn-dot"></span>
+                Жмякни
+            </button>
+        </div>
+    </div>
+</section>
 
-    <div class="main-scroller" id="mainScroller" style="display: none;">
+<div class="main-scroller" id="mainScroller" style="display:none;">
 
-        <section class="section" id="slide1">
-            <div class="glass-card layout-photo">
-                <div class="img-text-main">
-                    <div class="small-text stagger-1">ЭТО ДЛЯ ТЕБЯ</div>
-                    <div class="large-text stagger-2">ЛЮБИМАЯ ВАРЮША</div>
-                </div>
-                <div class="scroll-hint-arrow stagger-3">Жмяу на экран<span>↓</span></div>
-            </div>
-        </section>
-
-        <section class="section" id="slide2">
-            <div class="glass-card text-card">
-                <p class="slide-paragraph stagger-1">Где-то между твоим котом, то есть мной и тобой, то есть моей любимой девочкой есть невидимая нить. Я чувствую её каждый день — она тянется через города, границы и часовые пояса.</p>
-                <div class="card-divider stagger-2"></div>
-                <p class="slide-paragraph stagger-3">Ты знаешь, что самое странное в расстоянии? Оно научило меня любить тебя ещё сильнее. Каждый день без тебя — это ещё один день, который я буду вспоминать, когда мы наконец будем рядом.</p>
-                <div class="scroll-hint-arrow stagger-4">Жмякни для продолжения <span>↓</span></div>
-            </div>
-        </section>
-
-        <section class="section" id="slide3">
-            <div class="glass-card interactive-card">
-                <div class="click-instruction stagger-1" id="clickInstruction">
-                    <div class="tap-icon">🫵</div>
-                    <p>Жмякай на экран,<br>чтобы открывать послания</p>
-                </div>
-                <div class="messages-feed" id="messagesFeed">
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="slide4">
-            <div class="glass-card final-card">
-                <div class="final-glow-container">
-                    <h1 class="final-giant stagger-1">Я ТЕБЯ ОЧЕНЬ СИЛЬНО ЛЮБЛЮ</h1>
-                    <div class="final-divider stagger-2"></div>
-                    <p class="final-author stagger-3">НАВСЕГДА - ТВОЙ НИКИТКА</p>
-                </div>
-            </div>
-        </section>
-
+    <div class="section" id="slide1">
+        <div class="glass-card s1-card slide-enter" id="card1">
+            <div class="s1-eyebrow stagger-child s1">это для тебя</div>
+            <div class="s1-name stagger-child s2">Любимая<br>Варюша</div>
+            <div class="s1-divider stagger-child s3"></div>
+            <div class="s1-hint stagger-child s4">Жмяу на экран<em>↓</em></div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="section" id="slide2">
+        <div class="glass-card s2-card slide-enter" id="card2">
+            <span class="s2-quote-mark stagger-child s1">&ldquo;</span>
+            <p class="s2-body stagger-child s2">Где-то между твоим котом — то есть мной — и тобой, то есть моей любимой девочкой, есть невидимая нить. Я чувствую её каждый день — она тянется через города, границы и часовые пояса.</p>
+            <div class="s2-divider stagger-child s3"></div>
+            <p class="s2-body stagger-child s3">Ты знаешь, что самое странное в расстоянии? Оно научило меня любить тебя ещё сильнее. Каждый день без тебя — это ещё один день, который я буду вспоминать, когда мы наконец будем рядом.</p>
+            <div class="s2-hint stagger-child s4">Жмякни для продолжения<em>↓</em></div>
+        </div>
+    </div>
+
+    <div class="section" id="slide3">
+        <div class="glass-card s3-card slide-enter" id="card3">
+            <div class="tap-prompt" id="tapPrompt">
+                <div class="tap-icon">🫵</div>
+                <div class="tap-label">Жмякай на экран,<br>чтобы открывать послания</div>
+            </div>
+            <div class="messages-feed" id="messagesFeed"></div>
+        </div>
+    </div>
+
+    <div class="section" id="slide4">
+        <div class="glass-card s4-card slide-enter" id="card4">
+            <div class="s4-prefix stagger-child s1">всегда и навсегда</div>
+            <h1 class="s4-main stagger-child s2">Я тебя очень<br>сильно люблю</h1>
+            <div class="s4-line stagger-child s3"></div>
+            <div class="s4-author stagger-child s3">Твой Никитка</div>
+            <div class="s4-hearts stagger-child s4">💙 🩵 💙</div>
+        </div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
