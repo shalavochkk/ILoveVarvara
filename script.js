@@ -1,198 +1,209 @@
 (() => {
-    const startBtn = document.getElementById('startBtn');
-    const heroSec = document.getElementById('heroSec');
-    const mainScroller = document.getElementById('mainScroller');
-    const rainCanvas = document.getElementById('rainCanvas');
-    const ctx = rainCanvas.getContext('2d');
-    
-    const slide1 = document.getElementById('slide1');
-    const slide2 = document.getElementById('slide2');
-    const slide3 = document.getElementById('slide3');
-    const slide4 = document.getElementById('slide4');
+const starCanvas = document.getElementById('starCanvas');
+const sCtx = starCanvas.getContext('2d');
+let stars = [];
 
-    const sections = [slide1, slide2, slide3, slide4];
-    let currentSlideIdx = 0;
-
-    startBtn.addEventListener('click', () => {
-        heroSec.style.opacity = '0';
-        heroSec.style.transform = 'translateY(-100vh)';
-        
-        setTimeout(() => {
-            heroSec.style.display = 'none';
-            mainScroller.style.display = 'block';
-            activateSlide(0);
-        }, 1500); 
-    });
-
-    function activateSlide(index) {
-        if(index >= sections.length) return;
-        currentSlideIdx = index;
-        
-        sections.forEach(sec => sec.classList.remove('active-slide'));
-        
-        const targetSection = sections[index];
-        
-        // Даем браузеру отрендерить блок, затем вешаем класс активного слайда (запускает анимации CSS)
-        setTimeout(() => {
-            targetSection.classList.add('active-slide');
-        }, 50);
-        
-        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        if (index === 1) {
-            startRainEffect();
-            startHeartsDropping();
-        } else if (index === 3) {
-            stopHeartsDropping();
-            triggerFinalFountain();
-        } else {
-            stopHeartsDropping();
-        }
+function resizeStar() {
+    starCanvas.width  = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+    stars = [];
+    for (let i = 0; i < 120; i++) {
+        stars.push({
+            x: Math.random() * starCanvas.width,
+            y: Math.random() * starCanvas.height,
+            r: Math.random() * 1.2 + 0.2,
+            o: Math.random() * 0.5 + 0.1,
+            speed: Math.random() * 0.0004 + 0.0001,
+            phase: Math.random() * Math.PI * 2
+        });
     }
+}
+window.addEventListener('resize', resizeStar);
+resizeStar();
 
-    slide1.addEventListener('click', () => activateSlide(1));
-    slide2.addEventListener('click', () => activateSlide(2));
-
-    const clickInstruction = document.getElementById('clickInstruction');
-    const messagesFeed = document.getElementById('messagesFeed');
-    
-    const loveReasons = [
-        "Я люблю тебя за твое внимание и заботу 💙",
-        "За то, что ты умеешь понимать меня без лишних слов 💙",
-        "За невероятное тепло, которое ты даришь, несмотря на расстояние 💙",
-        "За все моменты что провели вместе 💙",
-        "За то, как мило ты разговариваешь, когда сильно устала 💙",
-        "И самое главное — за то, что ты вообще у меня есть 💙"
-    ];
-    let msgIdx = 0;
-
-    slide3.addEventListener('click', () => {
-        if (msgIdx === 0) {
-            clickInstruction.style.opacity = '0';
-            setTimeout(() => clickInstruction.style.display = 'none', 600);
-        }
-
-        if (msgIdx < loveReasons.length) {
-            const msgBubble = document.createElement('div');
-            msgBubble.className = 'bubble-msg';
-            msgBubble.textContent = loveReasons[msgIdx];
-            
-            // Вставляем новое сообщение В НАЧАЛО
-            messagesFeed.insertBefore(msgBubble, messagesFeed.firstChild);
-            
-            // Заставляем контейнер посланий всегда быть проскролленным наверх при появлении нового
-            messagesFeed.scrollTop = 0;
-
-            setTimeout(() => {
-                msgBubble.classList.add('appear');
-            }, 50);
-            
-            msgIdx++;
-        } else {
-            activateSlide(3);
-        }
+let t = 0;
+function drawStars() {
+    t += 0.016;
+    sCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+    stars.forEach(s => {
+        const alpha = s.o * (0.6 + 0.4 * Math.sin(t * s.speed * 200 + s.phase));
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        sCtx.fillStyle = `rgba(147,197,253,${alpha})`;
+        sCtx.fill();
     });
+    requestAnimationFrame(drawStars);
+}
+drawStars();
 
-    let rainDrops = [];
-    let animationFrameId = null;
+const rainCanvas = document.getElementById('rainCanvas');
+const rCtx = rainCanvas.getContext('2d');
+let drops = [], rainAnim = null;
 
-    function resizeRainCanvas() {
-        rainCanvas.width = window.innerWidth;
-        rainCanvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeRainCanvas);
-    resizeRainCanvas();
+function resizeRain() {
+    rainCanvas.width  = window.innerWidth;
+    rainCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeRain);
+resizeRain();
 
-    function startRainEffect() {
-        rainCanvas.style.opacity = '0.2'; 
-        
-        if (rainDrops.length === 0) {
-            for (let i = 0; i < 50; i++) {
-                rainDrops.push({
-                    x: Math.random() * rainCanvas.width,
-                    y: Math.random() * rainCanvas.height,
-                    speed: Math.random() * 1.5 + 1.0,
-                    len: Math.random() * 15 + 10,
-                    opacity: Math.random() * 0.1 + 0.05
-                });
-            }
-        }
-
-        function renderRain() {
-            ctx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
-            rainDrops.forEach(d => {
-                ctx.beginPath();
-                ctx.moveTo(d.x, d.y);
-                ctx.lineTo(d.x, d.y + d.len);
-                ctx.strokeStyle = `rgba(147, 197, 253, ${d.opacity})`;
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-
-                d.y += d.speed;
-                if (d.y > rainCanvas.height) {
-                    d.y = -d.len;
-                    d.x = Math.random() * rainCanvas.width;
-                }
+function startRain() {
+    rainCanvas.style.opacity = '0.25';
+    if (!drops.length) {
+        for (let i = 0; i < 55; i++) {
+            drops.push({
+                x: Math.random() * rainCanvas.width,
+                y: Math.random() * rainCanvas.height,
+                speed: Math.random() * 1.6 + 0.8,
+                len: Math.random() * 16 + 8,
+                op: Math.random() * 0.12 + 0.04
             });
-            animationFrameId = requestAnimationFrame(renderRain);
-        }
-        renderRain();
-    }
-
-    let dropInterval = null;
-    const heartPalettes = ['💙', '🩵', '✨', '💎'];
-
-    function spawnSingleHeart() {
-        const heart = document.createElement('div');
-        heart.className = 'ios-heart-drop';
-        heart.textContent = heartPalettes[Math.floor(Math.random() * heartPalettes.length)];
-        heart.style.left = Math.random() * 100 + 'vw';
-        
-        const scale = Math.random() * 0.5 + 0.5; 
-        heart.style.transform = `scale(${scale})`;
-        heart.style.opacity = Math.random() * 0.4 + 0.1;
-        
-        const duration = Math.random() * 4 + 6; 
-        heart.style.animationDuration = duration + 's';
-        
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), duration * 1000);
-    }
-
-    function startHeartsDropping() {
-        if(!dropInterval) dropInterval = setInterval(spawnSingleHeart, 1200);
-    }
-
-    function stopHeartsDropping() {
-        if(dropInterval) {
-            clearInterval(dropInterval);
-            dropInterval = null;
         }
     }
+    const loop = () => {
+        rCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+        drops.forEach(d => {
+            rCtx.beginPath();
+            rCtx.moveTo(d.x, d.y);
+            rCtx.lineTo(d.x - 1, d.y + d.len);
+            rCtx.strokeStyle = `rgba(147,197,253,${d.op})`;
+            rCtx.lineWidth = 1.2;
+            rCtx.stroke();
+            d.y += d.speed;
+            if (d.y > rainCanvas.height) { d.y = -d.len; d.x = Math.random() * rainCanvas.width; }
+        });
+        rainAnim = requestAnimationFrame(loop);
+    };
+    loop();
+}
+function stopRain() {
+    rainCanvas.style.opacity = '0';
+    if (rainAnim) { cancelAnimationFrame(rainAnim); rainAnim = null; }
+}
 
-    function triggerFinalFountain() {
-        for (let i = 0; i < 40; i++) {
+const palette = ['💙','🩵','✨','💎'];
+let heartInterval = null;
+
+function spawnHeart() {
+    const el = document.createElement('div');
+    el.className = 'ios-heart-drop';
+    el.textContent = palette[Math.floor(Math.random() * palette.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    const dur = Math.random() * 5 + 7;
+    el.style.animationDuration = dur + 's';
+    el.style.fontSize = (Math.random() * 10 + 16) + 'px';
+    el.style.opacity = (Math.random() * 0.35 + 0.1).toString();
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), dur * 1000);
+}
+function startHearts() { if (!heartInterval) heartInterval = setInterval(spawnHeart, 1100); }
+function stopHearts()  { clearInterval(heartInterval); heartInterval = null; }
+
+function fountain() {
+    for (let i = 0; i < 45; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.textContent = palette[Math.floor(Math.random() * palette.length)];
+            Object.assign(el.style, {
+                position: 'fixed',
+                left: (Math.random() * 86 + 7) + 'vw',
+                bottom: '-40px',
+                fontSize: (Math.random() * 16 + 12) + 'px',
+                pointerEvents: 'none',
+                zIndex: '99',
+                opacity: '0.8',
+                transition: 'all 4.5s cubic-bezier(0.1,0.8,0.15,1)'
+            });
+            document.body.appendChild(el);
             setTimeout(() => {
-                const el = document.createElement('div');
-                el.textContent = heartPalettes[Math.floor(Math.random() * heartPalettes.length)];
-                el.style.position = 'fixed';
-                el.style.left = (Math.random() * 90 + 5) + 'vw';
-                el.style.bottom = '-50px';
-                el.style.fontSize = (Math.random() * 18 + 14) + 'px';
-                el.style.pointerEvents = 'none';
-                el.style.zIndex = '99';
-                el.style.opacity = '0.7';
-                el.style.transition = 'all 4s cubic-bezier(0.1, 0.8, 0.2, 1)';
-                document.body.appendChild(el);
-
-                setTimeout(() => {
-                    const drift = (Math.random() - 0.5) * 200;
-                    el.style.transform = `translate(${drift}px, -${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`;
-                    el.style.opacity = '0';
-                }, 50);
-
-                setTimeout(() => el.remove(), 4000);
-            }, i * 120);
-        }
+                el.style.transform = `translate(${(Math.random()-0.5)*180}px, -${window.innerHeight + 80}px) rotate(${Math.random()*400}deg)`;
+                el.style.opacity = '0';
+            }, 30);
+            setTimeout(() => el.remove(), 5000);
+        }, i * 100);
     }
+}
+
+const slides  = ['slide1','slide2','slide3','slide4'].map(id => document.getElementById(id));
+const cards   = ['card1','card2','card3','card4'].map(id => document.getElementById(id));
+const aurora  = document.getElementById('aurora');
+let current   = -1;
+
+function showSlide(idx, prevIdx) {
+    if (prevIdx >= 0) {
+        slides[prevIdx].style.pointerEvents = 'none';
+        cards[prevIdx].classList.remove('slide-enter');
+        cards[prevIdx].classList.add('slide-exit');
+        setTimeout(() => cards[prevIdx].classList.add('gone'), 20);
+        setTimeout(() => { slides[prevIdx].style.display = 'none'; }, 750);
+    }
+
+    slides[idx].style.display = 'flex';
+    slides[idx].style.pointerEvents = 'auto';
+    cards[idx].classList.remove('slide-exit','gone');
+    cards[idx].classList.add('slide-enter');
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => cards[idx].classList.add('visible'));
+    });
+
+    current = idx;
+
+    if (idx === 1) { aurora.classList.add('visible'); startRain(); startHearts(); }
+    else if (idx === 3) { stopHearts(); stopRain(); fountain(); aurora.classList.add('visible'); }
+    else { stopHearts(); }
+
+    slides.forEach((s, i) => { if (i !== idx && i !== prevIdx) s.style.display = 'none'; });
+}
+
+const heroSec = document.getElementById('heroSec');
+const mainScroller = document.getElementById('mainScroller');
+
+document.getElementById('startBtn').addEventListener('click', () => {
+    heroSec.style.opacity = '0';
+    heroSec.style.transform = 'translateY(-60px) scale(0.97)';
+    setTimeout(() => {
+        heroSec.style.display = 'none';
+        mainScroller.style.display = 'block';
+        showSlide(0, -1);
+    }, 1400);
+});
+
+slides[0].addEventListener('click', () => { if (current === 0) showSlide(1, 0); });
+slides[1].addEventListener('click', () => { if (current === 1) showSlide(2, 1); });
+
+const tapPrompt    = document.getElementById('tapPrompt');
+const messagesFeed = document.getElementById('messagesFeed');
+const loveReasons  = [
+    "Я люблю тебя за твое бесконечное внимание и заботу 💙",
+    "За то, как мило ты разговариваешь, когда сильно устала 💙",
+    "За то, что ты умеешь понимать меня абсолютно без лишних слов 💙",
+    "За невероятное тепло, которое ты даришь, несмотря на любые расстояния 💙",
+    "И самое главное — за то, что ты вообще у меня есть 💙"
+];
+let msgIdx = 0;
+
+slides[2].addEventListener('click', () => {
+    if (current !== 2) return;
+
+    if (msgIdx === 0) {
+        tapPrompt.style.opacity = '0';
+        setTimeout(() => tapPrompt.style.display = 'none', 600);
+    }
+
+    if (msgIdx < loveReasons.length) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble-msg';
+        bubble.textContent = loveReasons[msgIdx];
+        messagesFeed.insertBefore(bubble, messagesFeed.firstChild);
+        messagesFeed.scrollTop = 0;
+        requestAnimationFrame(() => requestAnimationFrame(() => bubble.classList.add('appear')));
+        msgIdx++;
+    } else {
+        showSlide(3, 2);
+    }
+});
+
+slides.forEach((s, i) => { if (i > 0) s.style.display = 'none'; });
+
 })();
